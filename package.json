@@ -1,0 +1,15 @@
+{
+  "name": "turbo-docker-monorepo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager":"yarn@1.22.19",
+  "devDependencies": {
+    "turbo": "^1.9.6"
+  }
+}

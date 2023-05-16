@@ -1,0 +1,58 @@
+version: '3.8'
+name: turbo-docker-monorepo-dev
+
+x-defaults:
+  &defaults
+  init: true
+  tty: true
+  networks:
+    - monorepo_network
+
+services:
+
+  frontend:
+    <<: *defaults
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    command: yarn workspace frontend dev
+    environment:
+      - PORT=3000
+    build:
+      args:
+        APP: frontend
+        START_COMMAND: dev
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.dev
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - /app/node_modules
+      - /app/apps/frontend/node_modules
+      - /app/apps/frontend/.next
+
+  ####################################################################
+
+  backend:
+    <<: *defaults
+    ports:
+      - "3333:3333"
+    command: yarn workspace backend start:dev
+    environment:
+      - PORT=3333
+      - INDOCKER=1
+    build:
+      args:
+        APP: backend
+        START_COMMAND: start:dev
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.dev
+    volumes:
+      - ./apps/backend/src:/app/apps/backend/src
+      - /app/node_modules
+      - /app/apps/backend/node_modules
+
+####################################################################        
+
+networks:
+  monorepo_network:

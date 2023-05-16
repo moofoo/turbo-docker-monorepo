@@ -1,0 +1,61 @@
+# syntax=docker/dockerfile:1.5.2
+
+FROM node:20.2-alpine3.17 as base
+
+RUN apk add -f --update --no-cache --virtual .gyp nano bash python3 make g++ \
+      && yarn global add turbo \
+      && apk del .gyp
+
+#############################################
+FROM base AS pruned
+WORKDIR /app
+ARG APP
+
+COPY . .
+
+RUN turbo prune --scope=$APP --docker
+
+#############################################
+FROM base AS installer
+WORKDIR /app
+ARG APP
+
+ENV NODE_ENV=production
+
+COPY --from=pruned /app/out/json/ .
+COPY --from=pruned /app/out/yarn.lock /app/yarn.lock
+
+RUN \
+      --mount=type=cache,target=/usr/local/share/.cache/yarn/v6,sharing=locked \
+      yarn --prefer-offline --frozen-lockfile --prod
+
+COPY --from=pruned /app/out/full/ .
+COPY turbo.json turbo.json
+
+RUN turbo run build --no-cache --filter=${APP}...
+
+RUN \
+      --mount=type=cache,target=/usr/local/share/.cache/yarn/v6,sharing=locked \
+      yarn --prefer-offline --frozen-lockfile  --prod
+
+#############################################
+FROM base AS runner
+WORKDIR /app
+ARG APP
+ARG START_COMMAND=server
+
+ENV NODE_ENV=production
+
+# Don't run production as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+USER nextjs
+
+COPY --from=installer --chown=nextjs:nodejs /app/apps/${APP}/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/${APP}/.next/static ./apps/${APP}/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/${APP}/public ./apps/${APP}/public
+COPY apps/${APP}/package.json ./apps/${APP}/package.json
+
+RUN yarn cache clean
+
+CMD yarn workspace ${APP} ${START_COMMAND}

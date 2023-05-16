@@ -1,0 +1,51 @@
+version: '3.8'
+name: turbo-docker-monorepo-prod
+
+x-defaults:
+  &defaults
+  init: true
+  tty: true
+  networks:
+    - monorepo_network
+
+services:
+
+  frontend:
+    <<: *defaults
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    command: yarn workspace frontend server
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    build:
+      args:
+        APP: frontend
+        START_COMMAND: server
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.next.prod
+
+  ####################################################################
+
+  backend:
+    <<: *defaults
+    ports:
+      - "3333:3333"
+    command: yarn workspace backend start:prod
+    environment:
+      - PORT=3333
+      - INDOCKER=1
+      - NODE_ENV=production
+    build:
+      args:
+        APP: backend
+        START_COMMAND: start:prod
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.prod
+
+####################################################################        
+
+networks:
+  monorepo_network:
