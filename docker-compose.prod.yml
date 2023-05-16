@@ -36,14 +36,14 @@ services:
     command: yarn workspace backend start:prod
     environment:
       - PORT=3333
-      - INDOCKER=1
+      - IN_CONTAINER=1
       - NODE_ENV=production
     build:
       args:
         APP: backend
         START_COMMAND: start:prod
       context: .
-      dockerfile: ./dockerfiles/Dockerfile.prod
+      dockerfile: ./dockerfiles/Dockerfile.nest.prod
 
 ####################################################################        
 

@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "server": "node server.js",
-    "lint": "next lint"
+    "start": "next start",    
+    "lint": "next lint",
+    "server": "node server.js"
   },
   "dependencies": {
     "@types/node": "20.1.7",
