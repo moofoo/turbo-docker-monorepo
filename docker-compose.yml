@@ -48,7 +48,7 @@ services:
       context: .
       dockerfile: ./dockerfiles/Dockerfile.dev
     volumes:
-      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend:/app/apps/backend
       - /app/node_modules
       - /app/apps/backend/node_modules
 
