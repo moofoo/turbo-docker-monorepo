@@ -74,9 +74,12 @@ module.exports = nextConfig;
 ```typescript
 import {NestFactory} from "@nestjs/core";
 import {AppModule} from "./app.module";
+import {exampleFunc} from "shared-module"; // from packages/shared-module
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  exampleFunc();
 
   await app.listen(
     process.env.PORT || 3333,
