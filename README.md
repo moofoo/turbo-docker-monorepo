@@ -3,7 +3,7 @@
 ## Init
 
 ```
-git clone https://github.com/moofoo/turbo-docker-monorepo && cd turbo-docker-monorepo && yarn
+git clone https://github.com/moofoo/turbo-docker-monorepo && cd turbo-docker-monorepo && yarn && yarn workspace shared-module build
 ```
 
 ## Docker commands
