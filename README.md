@@ -89,6 +89,51 @@ async function bootstrap() {
 bootstrap();
 ```
 
+## Docker Notes
+
+Follow these steps when adding app dependencies:
+
+#### 1 - Add the dependencies
+
+```
+yarn workspace add APP_NAME DEPENDENCY (or yarn workspace add -D ... for dev deps)
+```
+
+for example,
+
+```
+yarn workspace backend add bcrypt
+```
+
+#### 2 - Stop/Remove/Build the service where dependencies change
+
+```
+docker compose rm -s -f backend && docker compose build backend
+```
+
+#### 3 - Restart the proxy service (explained below) and re-up
+
+```
+docker compose kill proxy && docker compose up -d
+```
+
+As unintuitive as the above may seem, removing the service before building the container reliably updates `node_modules` dependencies correctly while (apparently) not touching the build cache. In other words, this method is **much** **much** faster than running `docker compose build --no-cache`, while also dealing with the annoying dependency issues that normally necessitate the usage of `--no-cache` and other cache-busting flags.
+
+Sort of like a faster and more reliable version of this sequence:
+
+```console
+docker compose stop backend && docker compose up -d --build --force-recreate -V backend
+```
+
+Note that if you aren't setting static ip addresses for your services, restarting the proxy service will sometimes be necessary (if it was running while you removed/built/restarted the given service)
+
+One could make a shell script like this, to simplify things:
+
+```shell
+#!/bin/bash
+docker compose rm -s -f $1 && docker compose build $1 && docker compose kill proxy && docker compose up -d
+```
+
 ## References
 
 - [Turborepo - Deploying with Docker](https://turbo.build/repo/docs/handbook/deploying-with-docker#example)
