@@ -27,7 +27,6 @@ services:
       dockerfile: ./dockerfiles/Dockerfile.dev
     volumes:
       - ./apps/frontend:/app/apps/frontend
-      - /app/node_modules
       - /app/apps/frontend/node_modules
       - /app/apps/frontend/.next
 
@@ -49,7 +48,6 @@ services:
       dockerfile: ./dockerfiles/Dockerfile.dev
     volumes:
       - ./apps/backend:/app/apps/backend
-      - /app/node_modules
       - /app/apps/backend/node_modules
 
 ####################################################################        
